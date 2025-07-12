@@ -1,0 +1,117 @@
+#define BLYNK_TEMPLATE_ID "YourTemplateID"
+#define BLYNK_TEMPLATE_NAME "Spy Rover"
+#define BLYNK_AUTH_TOKEN "YourAuthToken"
+
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+#include <LiquidCrystal_I2C.h>
+
+// Motor Pins
+#define ENA D1
+#define IN1 D2
+#define IN2 D3
+#define IN3 D4
+#define IN4 D5
+#define ENB D6
+
+// LCD setup (16x2)
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+// WiFi credentials
+char auth[] = BLYNK_AUTH_TOKEN;
+char ssid[] = "YourWiFiSSID";
+char pass[] = "YourWiFiPassword";
+
+// Movement Functions
+void forward() {
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+  lcd.clear();
+  lcd.print("Moving Forward");
+}
+
+void backward() {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+  lcd.clear();
+  lcd.print("Moving Backward");
+}
+
+void left() {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+  lcd.clear();
+  lcd.print("Turning Left");
+}
+
+void right() {
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+  lcd.clear();
+  lcd.print("Turning Right");
+}
+
+void stopMovement() {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+  lcd.clear();
+  lcd.print("Stopped");
+}
+
+// Blynk Virtual Pins
+BLYNK_WRITE(V0) {
+  int x = param.asInt();
+  if (x == 1) forward();
+  else stopMovement();
+}
+
+BLYNK_WRITE(V1) {
+  int x = param.asInt();
+  if (x == 1) backward();
+  else stopMovement();
+}
+
+BLYNK_WRITE(V2) {
+  int x = param.asInt();
+  if (x == 1) left();
+  else stopMovement();
+}
+
+BLYNK_WRITE(V3) {
+  int x = param.asInt();
+  if (x == 1) right();
+  else stopMovement();
+}
+
+void setup() {
+  // Motor pins
+  pinMode(ENA, OUTPUT);
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+  pinMode(ENB, OUTPUT);
+
+  // Start LCD
+  lcd.begin();
+  lcd.backlight();
+  lcd.print("Spy Rover Ready");
+
+  // Connect to WiFi
+  Blynk.begin(auth, ssid, pass);
+}
+
+void loop() {
+  Blynk.run();
+}
+
